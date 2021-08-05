@@ -33,35 +33,41 @@ public class Main {
             
             //Seleciona o período inicial
             Select startPeriod = new Select(browser.findElement(By.name("periodo_inicio")));
-            startPeriod.selectByVisibleText(months[current_month]+"/"+years[current_year]);
+            //startPeriod.selectByVisibleText(months[current_month]+"/"+years[current_year]);
             
             //Seleciona o período final
             Select endPeriod = new Select(browser.findElement(By.name("periodo_fim")));
-            endPeriod.selectByVisibleText(months[current_month]+"/"+years[current_year]);
+            //endPeriod.selectByVisibleText(months[current_month]+"/"+years[current_year]);
             
-            //Tipo de consulta
-            browser.findElement(By.id("tipo-consulta-d")).click();
-            
-            //Seleciona o tipo de exame
-            Select typeExam = new Select(browser.findElement(By.name("tipo_exame")));
-            typeExam.selectByValue("2");
-            
-            browser.findElement(By.id("pesquisar")).click();
-            
-            List<WebElement> row = browser.findElements(By.xpath("//table/tbody/tr/td[1]"));
-            
-            System.out.println(months[current_month]+"/"+years[current_year]);
-            System.out.println("Linhas: " + row.size());
-            
-            if(row.size() > 0) {
-                for(int i=1; i<=row.size(); i++) {
-                    String name = browser.findElement(By.xpath("//table/tbody/tr["+i+"]/td[3]")).getText();
-                    float percent = Float.parseFloat(browser.findElement(By.xpath("//table/tbody/tr["+i+"]/td[4]")).getText().replace("%", "").trim());
-                    System.out.println(name + ": " + percent);
+            if(SelectElementContainsItemText(startPeriod, months[current_month]+"/"+years[current_year]) && SelectElementContainsItemText(endPeriod, months[current_month]+"/"+years[current_year])) {
+                startPeriod.selectByVisibleText(months[current_month]+"/"+years[current_year]);
+                endPeriod.selectByVisibleText(months[current_month]+"/"+years[current_year]);
+ 
+                //Tipo de consulta
+                browser.findElement(By.id("tipo-consulta-d")).click();
+
+                //Seleciona o tipo de exame
+                Select typeExam = new Select(browser.findElement(By.name("tipo_exame")));
+                typeExam.selectByValue("2");
+
+                browser.findElement(By.id("pesquisar")).click();
+
+
+                List<WebElement> row = browser.findElements(By.xpath("//table/tbody/tr/td[1]"));
+                
+                System.out.println(months[current_month]+"/"+years[current_year]);
+                System.out.println("Linhas: " + row.size());
+
+                if(row.size() > 0) {
+                    for(int i=1; i<=row.size(); i++) {
+                        String name = browser.findElement(By.xpath("//table/tbody/tr["+i+"]/td[3]")).getText();
+                        float percent = Float.parseFloat(browser.findElement(By.xpath("//table/tbody/tr["+i+"]/td[4]")).getText().replace("%", "").trim());
+                        System.out.println(name + ": " + percent);
+                    }
                 }
+
+                browser.findElement(By.xpath("//html/body/main/div/div/div/div[1]/div/div[3]/div/div[2]/div[2]/div/a")).click();
             }
-            
-            browser.findElement(By.xpath("//html/body/main/div/div/div/div[1]/div/div[3]/div/div[2]/div[2]/div/a")).click();
             
             count = count + 1;
             current_month = current_month + 1;
@@ -72,5 +78,21 @@ public class Main {
         }
         
         browser.quit();
+    }
+    
+    public static boolean SelectElementContainsItemText(Select element, String itemText) {
+        boolean found = false;
+
+        for (int i = 0; i < element.getOptions().size(); i++)
+        {
+            String blah =  element.getOptions().get(i).getText();
+            if (blah.equals(itemText))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        return found;
     }
 }
