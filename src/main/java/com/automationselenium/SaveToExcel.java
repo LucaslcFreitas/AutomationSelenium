@@ -4,8 +4,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -44,6 +46,11 @@ public class SaveToExcel {
             zeroFont.setColor(IndexedColors.RED.getIndex());
             CellStyle zeroStyle = workbook.createCellStyle();
             zeroStyle.setFont(zeroFont);
+            zeroStyle.setDataFormat(workbook.createDataFormat().getFormat("0.000%"));
+            
+            //normal style
+            CellStyle normalStyle = workbook.createCellStyle();
+            normalStyle.setDataFormat(workbook.createDataFormat().getFormat("0.000%"));
             
             Row headerRow1 = sheet.createRow(0);
             Cell h1 = headerRow1.createCell(0);
@@ -66,18 +73,20 @@ public class SaveToExcel {
                 row.createCell(cellNum++).setCellValue(school);
                 
                 Float[] data = yd.getAllData(school);
-                float average = 0;
                 int cont = 0;
                 for(Float dt : data) {
                     Cell cell = row.createCell(cellNum++);
-                    cell.setCellValue(dt);
-                    average += dt;
+                    cell.setCellValue(dt/100);
                     cont++;
                     
                     if(dt == 0)
                         cell.setCellStyle(zeroStyle);
+                    else
+                        cell.setCellStyle(normalStyle);
                 }
-                row.createCell(cellNum++).setCellValue(average/cont);
+                Cell media = row.createCell(cellNum++);
+                media.setCellType(CellType.FORMULA);
+                media.setCellFormula("MÉDIA(B"+rowNum+":M"+rowNum+")");
             }
             
             for(int i=0; i<columns.length; i++) {
